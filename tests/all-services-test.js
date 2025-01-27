@@ -8,7 +8,7 @@ import { setupServiceWorker } from './utils/serviceWorkerUtils.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-describe('Тесты ручек сервиса Python', function () {
+describe('Тесты ручек сервиса Python и Go одновременно', function () {
     let browser;
     let page;
     let serverProcess;
@@ -35,7 +35,7 @@ describe('Тесты ручек сервиса Python', function () {
 
         await setupServiceWorker({
             page: page,
-            workerFile: '/sw.js?module=api-python',
+            workerFile: '/sw.js?module=api-python&module=api',
             scope: '/',
             port: 8081
         });
@@ -60,7 +60,7 @@ describe('Тесты ручек сервиса Python', function () {
         });
     });
 
-    it('Должно вызвать alert, ручка /greet', async function () {
+    it('Должно вызвать alert, ручка /api-python/greet (Python)', async function () {
         const result = await page.evaluate(async () => {
             const response = await fetch('/api-python/greet');
             return response.json();
@@ -72,7 +72,7 @@ describe('Тесты ручек сервиса Python', function () {
         }
     });
 
-    it('Должно вызвать alert, ручка /echo', async function () {
+    it('Должно вызвать alert, ручка /api-python/echo (Python)', async function () {
         const input = 'test';
         const result = await page.evaluate(async (input) => {
             const response = await fetch('/api-python/echo', {
@@ -86,6 +86,19 @@ describe('Тесты ручек сервиса Python', function () {
         console.log(result);
         if (!result.you_sent || result.you_sent.message !== input) {
             throw new Error('Ответ от ручки /echo некорректный');
+        }
+    });
+
+    it('Должно вызвать alert, ручка /api/health (Go)', async function () {
+        const result = await page.evaluate(async () => {
+            const response = await fetch('http://localhost:8081/api/health');
+            return response.json();
+        });
+
+        console.log(result);
+
+        if (result.Status !== 'healthy') {
+            throw new Error('Ответ от ручки /health некорректный');
         }
     });
 });

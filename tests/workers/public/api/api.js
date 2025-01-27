@@ -4,7 +4,7 @@ const wasm = '/api/server.wasm';
 let args = [];
 let cacheName = null;
 
-export function run() {
+export async function run() {
     // Copyright 2018 The Go Authors. All rights reserved.
     // Use of this source code is governed by a BSD-style
     // license that can be found in the LICENSE file.

@@ -33,18 +33,3 @@ export async function setupServiceWorker({ page, workerFile, scope, port = 8081 
         });
     }, uniqueId);
 }
-
-/**
- * Функция для завершения работы браузера и сервера
- * @param {Object} resources - Ресурсы
- * @param {Object} resources.browser - Экземпляр браузера Puppeteer
- * @param {Object} resources.serverProcess - Процесс сервера
- */
-export async function teardownServiceWorker({ browser, serverProcess }) {
-    if (browser) {
-        await browser.close();
-    }
-    if (serverProcess) {
-        serverProcess.kill();
-    }
-}

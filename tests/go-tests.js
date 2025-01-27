@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { setupServiceWorker, teardownServiceWorker } from './utils/serviceWorkerUtils.js';
+import { setupServiceWorker } from './utils/serviceWorkerUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +17,8 @@ describe('Тесты ручек сервиса Go', function () {
         this.timeout(20000);
 
         const serverPath = path.join(__dirname, './workers/public');
-        serverProcess = spawn('npx', ['http-server', serverPath, '-p', 8081], {
+        
+        serverProcess = spawn('cmd', ['/s', '/c', 'npx', 'http-server', serverPath, '-p', 8081, {shell: true}], {
             stdio: 'inherit',
         });
 
@@ -45,7 +46,12 @@ describe('Тесты ручек сервиса Go', function () {
     });
 
     after(async function () {
-        await teardownServiceWorker({ browser, serverProcess });
+        if (browser) {
+            await browser.close();
+        }
+        if (serverProcess) {
+            serverProcess.kill();
+        }
     });
 
     afterEach(async function () {

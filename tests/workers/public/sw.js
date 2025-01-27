@@ -2,8 +2,13 @@ import * as ApiModule from './api/api.js';
 import * as ApiPythonModule from './api-python/api-python.js';
 
 const runFunctionsMap = new Map([
-    // ['api', ApiModule.run],
+    ['api', ApiModule.run],
     ['api-python', ApiPythonModule.run]
+]);
+
+const rootMappingsModuleNamesMap = new Map([
+    ['/api/', "api"],
+    ['/api-python/', "api-python"]
 ]);
 
 self.isServerReady = false;
@@ -54,7 +59,7 @@ self.addEventListener('activate', (event) => {
 
 const handlersMap = new Map();
 
-function loadModules(modules) {
+async function loadModules(modules) {
     for (const moduleName of modules) {
         const run = runFunctionsMap.get(moduleName);
 
@@ -63,8 +68,8 @@ function loadModules(modules) {
             continue;
         }
         try {
-            const handler = run();
-            handlersMap.set(`/${moduleName}`, handler);
+            const handler = await run(); // Ожидаем завершения функции run для каждого модуля
+            handlersMap.set(moduleName, handler);
         } catch (error) {
             console.error(`Не удалось загрузить модуль ${moduleName}:`, error);
         }
@@ -75,14 +80,20 @@ function loadModules(modules) {
 const queryParams = new URL(self.location.href).searchParams;
 const modulesToLoad = queryParams.getAll('module');
 
-loadModules(modulesToLoad);
+// Ожидаем завершения загрузки модулей перед выполнением следующего кода
+(async () => {
+    await loadModules(modulesToLoad);
+})();
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    for (const [path, handler] of handlersMap.entries()) {
+    for (const [path, moduleName] of rootMappingsModuleNamesMap.entries()) {
         if (url.pathname.startsWith(path)) {
-            event.respondWith(handler(event.request));
+            const handler = handlersMap.get(moduleName);
+            if (handler) {
+                event.respondWith(handler(event.request));
+            }
             return;
         }
     }
