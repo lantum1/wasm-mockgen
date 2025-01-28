@@ -3,12 +3,12 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { setupServiceWorker } from './utils/serviceWorkerUtils.js';
+import { setupServiceWorker, deregisterServiceWorker } from './utils/serviceWorkerUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-describe('Тесты ручек сервиса Go', function () {
+describe('Тесты ручек сервиса Python', function () {
     let browser;
     let page;
     let serverProcess;
@@ -25,7 +25,7 @@ describe('Тесты ручек сервиса Go', function () {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         browser = await puppeteer.launch({
-            headless: true,
+            headless: false,
             args: ['--no-sandbox'],
         });
 
@@ -35,8 +35,9 @@ describe('Тесты ручек сервиса Go', function () {
 
         await setupServiceWorker({
             page: page,
-            workerFile: '/sw.js?module=api',
+            workerFile: '/sw.js',
             scope: '/',
+            modulesNames: ['api-python'],
             port: 8081
         });
 
@@ -46,6 +47,12 @@ describe('Тесты ручек сервиса Go', function () {
     });
 
     after(async function () {
+        await deregisterServiceWorker({
+            page,
+            scope: '/',
+            port: 8081
+        });
+
         if (browser) {
             await browser.close();
         }
@@ -60,16 +67,32 @@ describe('Тесты ручек сервиса Go', function () {
         });
     });
 
-    it('Должно вызвать alert, ручка /api/health (Go)', async function () {
+    it('Должно вызвать alert, ручка /greet', async function () {
         const result = await page.evaluate(async () => {
-            const response = await fetch('http://localhost:8081/api/health');
+            const response = await fetch('/api-python/greet');
             return response.json();
         });
 
         console.log(result);
+        if (result.message !== 'Hello, World!') {
+            throw new Error('Ответ от ручки /greet некорректный');
+        }
+    });
 
-        if (result.Status !== 'healthy') {
-            throw new Error('Ответ от ручки /health некорректный');
+    it('Должно вызвать alert, ручка /echo', async function () {
+        const input = 'test';
+        const result = await page.evaluate(async (input) => {
+            const response = await fetch('/api-python/echo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: input }),
+            });
+            return response.json();
+        }, input);
+
+        console.log(result);
+        if (!result.you_sent || result.you_sent.message !== input) {
+            throw new Error('Ответ от ручки /echo некорректный');
         }
     });
 });

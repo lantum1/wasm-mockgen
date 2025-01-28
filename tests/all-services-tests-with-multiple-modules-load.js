@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { setupServiceWorker } from './utils/serviceWorkerUtils.js';
+import { setupServiceWorker, deregisterServiceWorker } from './utils/serviceWorkerUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,8 +35,9 @@ describe('Тесты ручек сервиса Python и Go одновремен
 
         await setupServiceWorker({
             page: page,
-            workerFile: '/sw.js?module=api-python&module=api',
+            workerFile: '/sw.js',
             scope: '/',
+            modulesNames: ['api-python', 'api'],
             port: 8081
         });
 
@@ -46,6 +47,12 @@ describe('Тесты ручек сервиса Python и Go одновремен
     });
 
     after(async function () {
+        await deregisterServiceWorker({
+            page,
+            scope: '/',
+            port: 8081
+        });
+        
         if (browser) {
             await browser.close();
         }

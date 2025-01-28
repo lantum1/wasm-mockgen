@@ -28,7 +28,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         self.clients.claim().then(() => {
-            const waitForGoServer = new Promise((resolve, reject) => {
+            const waitForServer = new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => reject(new Error('Server initialization timeout')), 15000);
                 const interval = setInterval(() => {
                     if (self.isServerReady) {
@@ -39,7 +39,7 @@ self.addEventListener('activate', (event) => {
                 }, 100);
             });
 
-            waitForGoServer
+            waitForServer
                 .then(() => {
                     console.log('Server is ready');
                     return self.clients.matchAll();
@@ -68,7 +68,7 @@ async function loadModules(modules) {
             continue;
         }
         try {
-            const handler = await run(); // Ожидаем завершения функции run для каждого модуля
+            const handler = await run();
             handlersMap.set(moduleName, handler);
         } catch (error) {
             console.error(`Не удалось загрузить модуль ${moduleName}:`, error);
@@ -80,7 +80,6 @@ async function loadModules(modules) {
 const queryParams = new URL(self.location.href).searchParams;
 const modulesToLoad = queryParams.getAll('module');
 
-// Ожидаем завершения загрузки модулей перед выполнением следующего кода
 (async () => {
     await loadModules(modulesToLoad);
 })();
