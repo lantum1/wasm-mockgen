@@ -1,6 +1,7 @@
-let path = '/';
-let base = '/api/';
+let base = 'api';
 const wasm = '/api/server.wasm';
+
+let path = '/';
 let args = [];
 let cacheName = null;
 
