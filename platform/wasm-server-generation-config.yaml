@@ -1,0 +1,10 @@
+generation-properties:
+  target-root-path: "C:\\Users\\lantum\\wasm-mockgen\\platform\\out"
+  frontend-properties:
+    project-type: module
+    test-framework: mocha
+  configs:
+    go-service:
+      adapter: go
+      mappings-root: /api
+      backend-source-path: "C:\\Users\\lantum\\plain_go_wasm_server"

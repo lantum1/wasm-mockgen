@@ -1,0 +1,7 @@
+adapters:
+  go:
+    enable-async: true
+    backend:
+      path: "C:\\Users\\lantum\\wasm-mockgen\\platform\\adapters\\backend\\go\\run.py"  
+    frontend:
+      module: "C:\\Users\\lantum\\wasm-mockgen\\platform\\adapters\\frontend\\module\\go\\run.py"
