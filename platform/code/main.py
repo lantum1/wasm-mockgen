@@ -2,7 +2,26 @@ import sys
 import subprocess
 import platform
 import os
+import asyncio
 from config_reader import load_configs
+from service_worker_creator import generate_sw
+from service_worker_utils_creator import copy_service_worker_utils
+
+async def run_final_tasks_async(generation_properties):
+    tasks = [
+        generate_sw(generation_properties),
+        copy_service_worker_utils(
+            generation_properties.frontend_properties, 
+            generation_properties.target_root_path
+        )
+    ]
+
+    try:
+        await asyncio.gather(*tasks)
+        print("Работа платформы успешно завершена")
+    except Exception as e:
+        print(f"Произошла ошибка при выполнении финальных задач - создании Service Worker js файла или Service Worker Utils js файла. Ошибка: {e}")
+        sys.exit(1)
 
 def get_python_cmd():
     return "python" if platform.system() == "Windows" else "python3"
@@ -74,6 +93,7 @@ def main(global_config_path: str, generation_config_path: str):
         else:
             run_adapter(backend_args, backend_dir)
             run_adapter(frontend_args, frontend_dir)
+    asyncio.run(run_final_tasks_async(generation_config.generation_properties))
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

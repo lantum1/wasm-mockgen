@@ -6,5 +6,5 @@ generation-properties:
   configs:
     go-service:
       adapter: go
-      mappings-root: /api
+      mappings-root: /api/
       backend-source-path: "C:\\Users\\lantum\\plain_go_wasm_server"
