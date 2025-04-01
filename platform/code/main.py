@@ -74,7 +74,7 @@ def main(global_config_path: str, generation_config_path: str):
         print(f"  - Фронтенд-адаптер: {frontend_adapter_path}")
 
         backend_args = [python_cmd, backend_adapter_path, config_name, wasm_generation_properties.backend_source_path, target_root_path]
-        frontend_args = [python_cmd, frontend_adapter_path, config_name, wasm_generation_properties.mappings_root, target_root_path]
+        frontend_args = [python_cmd, frontend_adapter_path, config_name, target_root_path]
 
         if enable_async:
             backend_proc = run_adapter_async(backend_args, backend_dir)

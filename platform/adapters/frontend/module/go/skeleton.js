@@ -1,5 +1,5 @@
-let base = 'api';
 const wasm = '/api/server.wasm';
+let base = '/';
 
 let path = '/';
 let args = [];

@@ -4,7 +4,7 @@ generation-properties:
     project-type: module
     test-framework: mocha
   configs:
-    go-service:
+    my-store-service:
       adapter: go
-      mappings-root: /api/
-      backend-source-path: "C:\\Users\\lantum\\plain_go_wasm_server"
+      mappings-root: /my-store/
+      backend-source-path: "C:\\Users\\lantum\\backend-my-store"

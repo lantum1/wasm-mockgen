@@ -24,8 +24,7 @@ flowchart TD
         2.generation-properties.configs.config-name.backend-source-path
         3.generation-properties.target-root-path" --> P3["Работа бекенд адаптера"]
     P14 -- "1.generation-properties.configs.config-name
-        2.generation-properties.configs.config-name.mappings-root
-        3.generation-properties.target-root-path" --> P5["Работа фронтенд адаптера"]
+        2.generation-properties.target-root-path" --> P5["Работа фронтенд адаптера"]
     P8 -- Cигнал завершения --> P12
     P8 -- Генерация вспомогательного файла --> D2[["Хранлище артефактов генерации"]]
     D4[["Хранлище кодовой базы серверной части веб-приложения"]] -- Получение файлов серверной части из хранилища --> P3
