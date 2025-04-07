@@ -25,7 +25,7 @@ describe('Тесты ручек сервиса Go', function () {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         browser = await puppeteer.launch({
-            headless: true,
+            headless: false,
             args: ['--no-sandbox'],
         });
 
@@ -78,5 +78,14 @@ describe('Тесты ручек сервиса Go', function () {
         if (result.Status !== 'healthy') {
             throw new Error('Ответ от ручки /health некорректный');
         }
+
+        const cookies = await page.cookies();
+
+        const fooCookie = cookies.find(c => c.name === 'foo');
+        if (!fooCookie) {
+            throw new Error('Cookie "foo" не установлена');
+        }
+
+        console.log(`Установлена cookie: foo=${fooCookie.value}`);
     });
 });

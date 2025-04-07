@@ -1,27 +1,3 @@
-/**
- * Инициализирует Service Worker для тестового окружения и ожидает завершения его полной регистрации.
- *
- * @param {Object} options Объект с параметрами для настройки Service Worker.
- * @param {import('puppeteer').Page} options.page Экземпляр страницы Puppeteer, на которой будет зарегистрирован Service Worker.
- * @param {string} options.workerFile Путь к файлу Service Worker, например, '/sw.js'.
- * @param {string} options.scope Область (scope) Service Worker, например, '/api-python'.
- * @param {string[]} [options.modulesNames=[]] Массив имен модулей, которые нужно передать как query параметры в `workerFile`.
- *                      Эти модули будут переданы в URL, например, ['api-python', 'api'] превратится в
- *                      '/sw.js?module=api-python&module=api'.
- * @param {number} [options.port=8081] Порт локального тестового сервера, по умолчанию `8081`.
- *
- * @throws {Error} Если инициализация Service Worker занимает больше 15 секунд, выбрасывается ошибка с сообщением о тайм-ауте.
- *
- * @example
- * await setupServiceWorker({
- *     page,
- *     workerFile: '/sw.js',
- *     scope: '/',
- *     modulesNames: ['api-python', 'api'],
- *     port: 8081
- * });
- */
-
 export async function setupServiceWorker({ page, workerFile, scope, modulesNames = [], port = 8081 }) {
     const queryParams = modulesNames.map((module) => `module=${encodeURIComponent(module)}`).join('&');
     const workerFileWithModules = `${workerFile}?${queryParams}`;
@@ -35,8 +11,14 @@ export async function setupServiceWorker({ page, workerFile, scope, modulesNames
 
     const uniqueId = crypto.randomUUID();
     await page.evaluate((uniqueId) => {
-        return navigator.serviceWorker.ready.then((registration) => {
+        navigator.serviceWorker.ready.then((registration) => {
             registration.active.postMessage({ type: 'SET_UUID', uuid: uniqueId });
+        });
+
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'SET_COOKIE' && typeof event.data.value === 'string') {
+                document.cookie = event.data.value;
+            }
         });
     }, uniqueId);
 
