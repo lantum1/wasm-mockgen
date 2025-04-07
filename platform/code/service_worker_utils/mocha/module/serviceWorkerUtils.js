@@ -73,4 +73,3 @@ export async function deregisterServiceWorker({ page, scope, port = 8081 }) {
 
     await page.reload();
 }
-
