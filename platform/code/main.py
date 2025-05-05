@@ -34,7 +34,7 @@ def run_adapter(command: list, working_dir: str):
         sys.exit(1)
 
 def run_adapter_async(command: list, working_dir: str):
-    print(f"Запускаем (асинхронно): {' '.join(command)} (в папке {working_dir})")
+    print(f"Запускаем асинхронно: {' '.join(command)} (в папке {working_dir})")
     return subprocess.Popen(command, cwd=working_dir)
 
 def create_directory_if_not_exists(path: str):
