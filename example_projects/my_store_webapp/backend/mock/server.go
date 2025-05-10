@@ -5,21 +5,32 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	// wasmhttp "github.com/nlepage/go-wasm-http-server/v2"
+
+	wasmhttp "github.com/nlepage/go-wasm-http-server/v2"
 )
 
-type Product struct {
+type ProductResponse struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Price int    `json:"price"`
 	Stock int    `json:"stock"`
 }
 
+type OrderRequest struct {
+	ID int `json:"id"`
+}
+
+type OrderResponse struct {
+	Message string `json:"message"`
+}
+
+type PurchasedProductsResponse map[int]int
+
 var (
-	products = map[int]*Product{
-		1: {ID: 1, Name: "Товар 1", Price: 100, Stock: 5},
-		2: {ID: 2, Name: "Товар 2", Price: 200, Stock: 3},
-		3: {ID: 3, Name: "Товар 3", Price: 300, Stock: 2},
+	products = map[int]*ProductResponse{
+		1: {ID: 1, Name: "Coca-Cola сильногазированный напиток 330 мл", Price: 110, Stock: 5},
+		2: {ID: 2, Name: "Макаронные изделия 'Каждый День'", Price: 40, Stock: 10},
+		3: {ID: 3, Name: "Сухарики Три Корочки со вкусом Сметана и Зелень 60 гр", Price: 62, Stock: 4},
 	}
 	purchasedProducts = map[int]int{}
 	mu                sync.Mutex
@@ -37,12 +48,12 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
+
 	mu.Lock()
 	defer mu.Unlock()
 
-	productList := make([]Product, 0, len(products))
+	productList := make([]ProductResponse, 0, len(products))
 	for _, p := range products {
 		productList = append(productList, *p)
 	}
@@ -56,12 +67,13 @@ func getPurchased(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
+
 	mu.Lock()
 	defer mu.Unlock()
 
-	json.NewEncoder(w).Encode(purchasedProducts)
+	response := PurchasedProductsResponse(purchasedProducts)
+	json.NewEncoder(w).Encode(response)
 }
 
 func orderProduct(w http.ResponseWriter, r *http.Request) {
@@ -71,19 +83,18 @@ func orderProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		ID int `json:"id"`
-	}
+	var req OrderRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		http.Error(w, "Неверный запрос", http.StatusBadRequest)
 		return
 	}
 
 	mu.Lock()
 	defer mu.Unlock()
+
 	product, exists := products[req.ID]
 	if !exists || product.Stock <= 0 {
-		http.Error(w, "Product not available", http.StatusBadRequest)
+		http.Error(w, "Товар недоступен", http.StatusBadRequest)
 		return
 	}
 
@@ -91,7 +102,8 @@ func orderProduct(w http.ResponseWriter, r *http.Request) {
 	purchasedProducts[req.ID]++
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Заказ оформлен!"})
+	resp := OrderResponse{Message: "Заказ оформлен!"}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func main() {
@@ -100,7 +112,7 @@ func main() {
 	http.HandleFunc("/my-store/purchased", getPurchased)
 
 	log.Println("Сервер запущен на :8080")
-	err := http.ListenAndServe(":8080", nil)
+	_, err := wasmhttp.Serve(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
