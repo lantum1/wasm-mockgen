@@ -1,2 +1,4 @@
 example_projects/my_store_webapp/frontend/node_modules
+example_projects/my_store_webapp/frontend/.next
 example_projects/test_webapp_with_go_and_python_backend/node_modules
+example_projects/test_webapp_with_go_and_python_backend/.next

@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import { spawn, spawnSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import kill from 'tree-kill';
 
 import { setupServiceWorker, deregisterServiceWorker } from './utils/serviceWorkerUtils.js';
 
@@ -14,7 +15,7 @@ describe('Тесты интернет-магазина', function () {
     let nextServerProcess;
 
     before(async function () {
-        this.timeout(60000);
+        this.timeout(180000);
 
         console.log('Сборка проекта...');
         spawnSync('npm', ['run', 'build'], {
@@ -56,6 +57,8 @@ describe('Тесты интернет-магазина', function () {
     });
 
     after(async function () {
+        this.timeout(180000);
+
         await deregisterServiceWorker({
             page,
             scope: '/',
@@ -66,13 +69,11 @@ describe('Тесты интернет-магазина', function () {
             await browser.close();
         }
         if (nextServerProcess) {
-            nextServerProcess.kill();
+            kill(nextServerProcess.pid);
         }
     });
 
     it('Должны загружаться товары', async function () {
-        this.timeout(180000);
-
         await page.waitForSelector('.product-item', { timeout: 180000 });
 
         const products = await page.evaluate(() =>
@@ -86,8 +87,6 @@ describe('Тесты интернет-магазина', function () {
     });
 
     it('При покупке товара количество уменьшается', async function () {
-        this.timeout(180000);
-
         await page.waitForSelector('.product-item button', { timeout: 180000 });
 
         const initialQuantity = await page.evaluate(() => {
@@ -96,9 +95,9 @@ describe('Тесты интернет-магазина', function () {
 
         console.log('Исходное количество:', initialQuantity);
 
-        await page.click('.product-item button');
+        await page.click('.product-item button', { timeout: 180000 });
 
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         const updatedQuantity = await page.evaluate(() => {
             return document.querySelector('.product-item span').textContent.trim();
