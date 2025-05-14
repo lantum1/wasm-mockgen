@@ -7,4 +7,4 @@ generation-properties:
     my-store-service:
       adapter: go
       mappings-root: /my-store/
-      backend-source-path: "C:\\Users\\lantum\\backend-my-store"
+      backend-source-path: "C:\\Users\\lantum\\wasm-mockgen\\example_projects\\my_store_webapp\\backend\\mock"

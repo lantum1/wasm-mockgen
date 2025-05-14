@@ -1,4 +1,4 @@
-module diploma
+module my-store
 
 go 1.23.3
 

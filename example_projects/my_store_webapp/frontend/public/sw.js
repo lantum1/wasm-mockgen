@@ -88,7 +88,27 @@ self.addEventListener('fetch', (event) => {
         if (url.pathname.startsWith(path)) {
             const handler = handlersMap.get(moduleName);
             if (handler) {
-                event.respondWith(handler(event.request));
+                event.respondWith((async () => {
+                    const response = await handler(event.request);
+
+                    const allSetCookies = [...response.headers.entries()]
+                        .filter(([name]) => name.toLowerCase() === 'x-set-cookie')
+                        .map(([, value]) => value);
+
+                    if (allSetCookies.length > 0) {
+                        const clients = await self.clients.matchAll();
+                        for (const client of clients) {
+                            for (const cookie of allSetCookies) {
+                                client.postMessage({
+                                    type: 'SET_COOKIE',
+                                    value: cookie
+                                });
+                            }
+                        }
+                    }
+
+                    return response;
+                })());
             }
             return;
         }
