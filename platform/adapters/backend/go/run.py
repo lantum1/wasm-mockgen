@@ -18,7 +18,7 @@ def compile_go_to_wasm(config_name, backend_source_path, target_root_path):
         subprocess.run(command, check=True, env=env, cwd=backend_source_path)
         print(f"WASM файл успешно скомпилирован: {output_file}")
     except subprocess.CalledProcessError as e:
-        print(f"Ошибка при компиляции: {e}")
+        print(f"Ошибка при генерации WASM файла: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

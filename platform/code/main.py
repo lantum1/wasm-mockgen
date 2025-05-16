@@ -27,14 +27,14 @@ def get_python_cmd():
     return "python" if platform.system() == "Windows" else "python3"
 
 def run_adapter(command: list, working_dir: str):
-    print(f"Запускаем: {' '.join(command)} (в папке {working_dir})")
+    print(f"Запускаем адаптер: {' '.join(command)} (в папке {working_dir})")
     process = subprocess.run(command, cwd=working_dir)
     if process.returncode != 0:
         print(f"Ошибка: {' '.join(command)} завершился с кодом {process.returncode}")
         sys.exit(1)
 
 def run_adapter_async(command: list, working_dir: str):
-    print(f"Запускаем асинхронно: {' '.join(command)} (в папке {working_dir})")
+    print(f"Запускаем адаптер асинхронно: {' '.join(command)} (в папке {working_dir})")
     return subprocess.Popen(command, cwd=working_dir)
 
 def create_directory_if_not_exists(path: str):

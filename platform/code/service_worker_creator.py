@@ -1,7 +1,6 @@
 import os
 
 def sanitize_js_identifier(name: str) -> str:
-    """ Удаляет дефисы из имени конфигурации для корректного использования в JS. """
     return name.replace("-", "")
 
 def generate_sw_js(generation_properties):

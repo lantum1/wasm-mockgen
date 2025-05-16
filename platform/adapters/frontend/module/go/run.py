@@ -18,7 +18,7 @@ def modify_js_file(config_name, input_js_path, target_root_path):
         
         print(f"Файл успешно сгенерирован: {output_file}")
     except Exception as e:
-        print(f"Ошибка при обработке файла: {e}")
+        print(f"Ошибка при генерации файла: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
