@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: Интернет-магазин
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /my-store/products:
+    get:
+      summary: Получить список всех доступных к покупке товаров
+      responses:
+        '200':
+          description: Список товаров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /my-store/order:
+    post:
+      summary: Заказать товар
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '200':
+          description: Успешный заказ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Неверный запрос
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /my-store/purchased:
+    get:
+      summary: Получить купленные товары
+      responses:
+        '200':
+          description: Мапа ID купленного товара - количество купленного товара
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: integer
+        stock:
+          type: integer
+      required: [id, name, price, stock]
+
+    OrderRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+      required: [id]
